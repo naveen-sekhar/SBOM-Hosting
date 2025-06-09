@@ -1,8 +1,0 @@
-SBOM_Automation.sh - Is the final script as till date further updates will be done at the autofin.sh files 
-options available in SBOM_Automation : 
-===== SBOM & Vulnerability Scanner Menu =====
-1. Update Syft and Grype
-2. Start SBOM Generation & Analysis
-3. Open GitHub Profile (naveen-sekhar)
-4. Exit
-Select an option [1-4]: 
