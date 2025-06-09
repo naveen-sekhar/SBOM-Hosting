@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBOM Comparison Tool - Syft vs Trivy</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .comparison-table {
+            max-height: none;
+            overflow: visible;
+        }
+        @media print {
+            body { print-color-adjust: exact; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-2">
+                    <i class="fas fa-shield-alt mr-3"></i>
+                    SBOM Comparison Tool
+                </h1>
+                <p class="text-xl opacity-90">Compare Syft vs Trivy SBOM Reports</p>
+                <p class="text-lg opacity-80 mt-2">Supporting SPDX and CycloneDX formats</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- File Upload Section -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                <i class="fas fa-upload mr-2 text-blue-600"></i>
+                Upload SBOM Files for Comparison
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- SPDX Section -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-file-code mr-2 text-green-600"></i>
+                        SPDX Format
+                    </h3>
+                    
+                    <div class="drop-zone p-6 rounded-lg text-center cursor-pointer" id="spdx-syft-zone">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-semibold">Syft SPDX JSON</p>
+                        <p class="text-sm text-gray-500">Drop file here or click to browse</p>
+                        <input type="file" id="spdx-syft-file" accept=".json" class="hidden">
+                        <div id="spdx-syft-status" class="mt-2 text-sm"></div>
+                    </div>
+                    
+                    <div class="drop-zone p-6 rounded-lg text-center cursor-pointer" id="spdx-trivy-zone">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-semibold">Trivy SPDX JSON</p>
+                        <p class="text-sm text-gray-500">Drop file here or click to browse</p>
+                        <input type="file" id="spdx-trivy-file" accept=".json" class="hidden">
+                        <div id="spdx-trivy-status" class="mt-2 text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- CycloneDX Section -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-file-alt mr-2 text-purple-600"></i>
+                        CycloneDX Format
+                    </h3>
+                    
+                    <div class="drop-zone p-6 rounded-lg text-center cursor-pointer" id="cyclone-syft-zone">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-semibold">Syft CycloneDX JSON</p>
+                        <p class="text-sm text-gray-500">Drop file here or click to browse</p>
+                        <input type="file" id="cyclone-syft-file" accept=".json" class="hidden">
+                        <div id="cyclone-syft-status" class="mt-2 text-sm"></div>
+                    </div>
+                    
+                    <div class="drop-zone p-6 rounded-lg text-center cursor-pointer" id="cyclone-trivy-zone">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-semibold">Trivy CycloneDX JSON</p>
+                        <p class="text-sm text-gray-500">Drop file here or click to browse</p>
+                        <input type="file" id="cyclone-trivy-file" accept=".json" class="hidden">
+                        <div id="cyclone-trivy-status" class="mt-2 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="compare-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-analytics mr-2"></i>
+                    Compare SBOMs
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <!-- Summary Statistics -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                    <i class="fas fa-chart-bar mr-2 text-indigo-600"></i>
+                    Comparison Summary
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <canvas id="spdx-chart" width="400" height="200"></canvas>
+                        <h3 class="text-center text-lg font-semibold mt-4 text-gray-700">SPDX Comparison</h3>
+                    </div>
+                    <div>
+                        <canvas id="cyclone-chart" width="400" height="200"></canvas>
+                        <h3 class="text-center text-lg font-semibold mt-4 text-gray-700">CycloneDX Comparison</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPDX Comparison Table -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8" id="spdx-results">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-table mr-2 text-green-600"></i>
+                    SPDX Comparison Results
+                </h2>
+                <div class="comparison-table">
+                    <table class="w-full border-collapse" id="spdx-table">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Package</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spdx-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CycloneDX Comparison Table -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8" id="cyclone-results">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-table mr-2 text-purple-600"></i>
+                    CycloneDX Comparison Results
+                </h2>
+                <div class="comparison-table">
+                    <table class="w-full border-collapse" id="cyclone-table">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Component</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
+                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cyclone-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                    Legend
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-200 border border-green-300 rounded mr-2"></div>
+                        <span class="text-sm">✅ Match</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-yellow-200 border border-yellow-300 rounded mr-2"></div>
+                        <span class="text-sm">⚠️ Missing in Trivy</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-yellow-200 border border-yellow-300 rounded mr-2"></div>
+                        <span class="text-sm">⚠️ Missing in Syft</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-red-200 border border-red-300 rounded mr-2"></div>
+                        <span class="text-sm">❌ Version Mismatch</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-16">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-300">
+                <i class="fas fa-shield-alt mr-2"></i>
+                SBOM Comparison Tool - Secure Software Supply Chain Analysis
+            </p>
+            <p class="text-sm text-gray-400 mt-2">
+                Compare Software Bill of Materials (SBOM) files generated by Syft and Trivy
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables to store file data
+        let spdxSyftData = null;
+        let spdxTrivyData = null;
+        let cycloneSyftData = null;
+        let cycloneTrivyData = null;
+
+        // Initialize file upload handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload('spdx-syft', parseSPDXFile);
+            setupFileUpload('spdx-trivy', parseSPDXFile);
+            setupFileUpload('cyclone-syft', parseCycloneDXFile);
+            setupFileUpload('cyclone-trivy', parseCycloneDXFile);
+            
+            document.getElementById('compare-btn').addEventListener('click', performComparison);
+        });
+
+        function setupFileUpload(prefix, parseFunction) {
+            const zone = document.getElementById(`${prefix}-zone`);
+            const input = document.getElementById(`${prefix}-file`);
+            const status = document.getElementById(`${prefix}-status`);
+
+            zone.addEventListener('click', () => input.click());
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('drop', (e) => handleDrop(e, input, parseFunction, status, prefix));
+            input.addEventListener('change', (e) => handleFileSelect(e, parseFunction, status, prefix));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(e, input, parseFunction, status, prefix) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0], parseFunction, status, prefix);
+            }
+        }
+
+        function handleFileSelect(e, parseFunction, status, prefix) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file, parseFunction, status, prefix);
+            }
+        }
+
+        function processFile(file, parseFunction, status, prefix) {
+            if (!file.name.endsWith('.json')) {
+                showStatus(status, 'Please select a JSON file', 'error');
+                return;
+            }
+
+            showStatus(status, 'Loading...', 'loading');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const parsed = parseFunction(data);
+                    storeFileData(prefix, parsed);
+                    showStatus(status, `✅ Loaded ${Object.keys(parsed).length} components`, 'success');
+                    checkCanCompare();
+                } catch (error) {
+                    showStatus(status, '❌ Invalid JSON file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseSPDXFile(data) {
+            const components = data.packages || [];
+            const result = {};
+            components.forEach(comp => {
+                const rawName = comp.name || "Unknown";
+                const cleanName = rawName.split('/').pop();
+                result[cleanName] = comp.versionInfo || "Unknown";
+            });
+            return result;
+        }
+
+        function parseCycloneDXFile(data) {
+            const components = data.components || [];
+            const result = {};
+            components.forEach(comp => {
+                const rawName = comp.name || "Unknown";
+                const cleanName = rawName.split('/').pop();
+                result[cleanName] = comp.version || "Unknown";
+            });
+            return result;
+        }
+
+        function storeFileData(prefix, data) {
+            switch(prefix) {
+                case 'spdx-syft': spdxSyftData = data; break;
+                case 'spdx-trivy': spdxTrivyData = data; break;
+                case 'cyclone-syft': cycloneSyftData = data; break;
+                case 'cyclone-trivy': cycloneTrivyData = data; break;
+            }
+        }
+
+        function showStatus(statusElement, message, type) {
+            statusElement.textContent = message;
+            statusElement.className = `mt-2 text-sm ${
+                type === 'success' ? 'text-green-600' :
+                type === 'error' ? 'text-red-600' :
+                'text-blue-600'
+            }`;
+        }
+
+        function checkCanCompare() {
+            const canCompareSPDX = spdxSyftData && spdxTrivyData;
+            const canCompareCyclone = cycloneSyftData && cycloneTrivyData;
+            const compareBtn = document.getElementById('compare-btn');
+            
+            if (canCompareSPDX || canCompareCyclone) {
+                compareBtn.disabled = false;
+                compareBtn.classList.remove('disabled:bg-gray-400');
+            }
+        }
+
+        function performComparison() {
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.classList.remove('hidden');
+
+            let spdxComparison = null;
+            let cycloneComparison = null;
+
+            if (spdxSyftData && spdxTrivyData) {
+                spdxComparison = compareSBOMs(spdxSyftData, spdxTrivyData);
+                displayTable('spdx', spdxComparison);
+                createChart('spdx-chart', spdxComparison, 'SPDX');
+            } else {
+                document.getElementById('spdx-results').style.display = 'none';
+            }
+
+            if (cycloneSyftData && cycloneTrivyData) {
+                cycloneComparison = compareSBOMs(cycloneSyftData, cycloneTrivyData);
+                displayTable('cyclone', cycloneComparison);
+                createChart('cyclone-chart', cycloneComparison, 'CycloneDX');
+            } else {
+                document.getElementById('cyclone-results').style.display = 'none';
+            }
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function compareSBOMs(syftData, trivyData) {
+            const results = [];
+            const allPackages = new Set([...Object.keys(syftData), ...Object.keys(trivyData)]);
+            
+            for (const pkg of Array.from(allPackages).sort()) {
+                const syftVer = syftData[pkg] || "Not Found";
+                const trivyVer = trivyData[pkg] || "Not Found";
+                
+                let status, color;
+                if (syftVer === trivyVer && syftVer !== "Not Found") {
+                    status = "✅ Match";
+                    color = "#d4edda";
+                } else if (trivyVer === "Not Found") {
+                    status = "⚠️ Missing in Trivy";
+                    color = "#fff3cd";
+                } else if (syftVer === "Not Found") {
+                    status = "⚠️ Missing in Syft";
+                    color = "#fff3cd";
+                } else {
+                    status = "❌ Version Mismatch";
+                    color = "#f8d7da";
+                }
+                
+                results.push({ pkg, syftVer, trivyVer, status, color });
+            }
+            
+            return results;
+        }
+
+        function displayTable(type, comparison) {
+            const tbody = document.getElementById(`${type}-table-body`);
+            tbody.innerHTML = '';
+            
+            comparison.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.style.backgroundColor = row.color;
+                tr.innerHTML = `
+                    <td class="border border-gray-300 px-4 py-2 font-medium">${row.pkg}</td>
+                    <td class="border border-gray-300 px-4 py-2">${row.syftVer}</td>
+                    <td class="border border-gray-300 px-4 py-2">${row.trivyVer}</td>
+                    <td class="border border-gray-300 px-4 py-2 font-medium">${row.status}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function createChart(canvasId, comparison, label) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            const stats = {
+                match: comparison.filter(r => r.status.includes('Match')).length,
+                missingTrivy: comparison.filter(r => r.status.includes('Missing in Trivy')).length,
+                missingSyft: comparison.filter(r => r.status.includes('Missing in Syft')).length,
+                mismatch: comparison.filter(r => r.status.includes('Mismatch')).length
+            };
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Matches', 'Missing in Trivy', 'Missing in Syft', 'Version Mismatches'],
+                    datasets: [{
+                        data: [stats.match, stats.missingTrivy, stats.missingSyft, stats.mismatch],
+                        backgroundColor: ['#10b981', '#f59e0b', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `${label} Analysis (${comparison.length} total packages)`,
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
