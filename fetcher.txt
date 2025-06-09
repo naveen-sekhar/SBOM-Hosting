@@ -1,0 +1,37 @@
+const API_KEY = 'yourapikey';
+
+function getYouTubeViews(url) {
+  try {
+    if (!url) return "No URL";
+
+    var videoId = extractVideoId(url);
+    if (!videoId) return "Invalid URL";
+
+    var apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${API_KEY}`;
+    var response = UrlFetchApp.fetch(apiUrl);
+    var json = JSON.parse(response.getContentText());
+
+    if (json.items.length > 0) {
+      return json.items[0].statistics.viewCount;
+    } else {
+      return "Video not found";
+    }
+  } catch (e) {
+    return "Error: " + e.message;
+  }
+}
+
+function extractVideoId(url) {
+  const patterns = [
+    /(?:\?v=|&v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
