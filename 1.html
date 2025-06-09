@@ -23,9 +23,37 @@
             max-height: none;
             overflow: visible;
         }
+        .status-match { background-color: #d4edda; }
+        .status-missing { background-color: #fff3cd; }
+        .status-mismatch { background-color: #f8d7da; }
         @media print {
             body { print-color-adjust: exact; }
             .no-print { display: none; }
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-button.active {
+            background: #4299e1;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #cbd5e0;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: -1px;
         }
     </style>
 </head>
@@ -131,47 +159,59 @@
                 </div>
             </div>
 
-            <!-- SPDX Comparison Table -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-8" id="spdx-results">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-table mr-2 text-green-600"></i>
-                    SPDX Comparison Results
-                </h2>
-                <div class="comparison-table">
-                    <table class="w-full border-collapse" id="spdx-table">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Package</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="spdx-table-body">
-                        </tbody>
-                    </table>
+            <!-- Tabbed Results -->
+            <div class="bg-white rounded-xl shadow-lg mb-8">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="spdx-tab">SPDX Comparison</button>
+                    <button class="tab-button" data-tab="cyclone-tab">CycloneDX Comparison</button>
                 </div>
-            </div>
+                
+                <!-- SPDX Comparison Table -->
+                <div id="spdx-tab" class="tab-content active">
+                    <div class="p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-table mr-2 text-green-600"></i>
+                            SPDX Comparison Results
+                        </h2>
+                        <div class="comparison-table">
+                            <table class="w-full border-collapse" id="spdx-table">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Package</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="spdx-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- CycloneDX Comparison Table -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-8" id="cyclone-results">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-table mr-2 text-purple-600"></i>
-                    CycloneDX Comparison Results
-                </h2>
-                <div class="comparison-table">
-                    <table class="w-full border-collapse" id="cyclone-table">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Component</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
-                                <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cyclone-table-body">
-                        </tbody>
-                    </table>
+                <!-- CycloneDX Comparison Table -->
+                <div id="cyclone-tab" class="tab-content">
+                    <div class="p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-table mr-2 text-purple-600"></i>
+                            CycloneDX Comparison Results
+                        </h2>
+                        <div class="comparison-table">
+                            <table class="w-full border-collapse" id="cyclone-table">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Component</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Syft Version</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Trivy Version</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cyclone-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -231,6 +271,20 @@
             setupFileUpload('cyclone-trivy', parseCycloneDXFile);
             
             document.getElementById('compare-btn').addEventListener('click', performComparison);
+            
+            // Tab functionality
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
         });
 
         function setupFileUpload(prefix, parseFunction) {
@@ -282,6 +336,7 @@
                     showStatus(status, `✅ Loaded ${Object.keys(parsed).length} components`, 'success');
                     checkCanCompare();
                 } catch (error) {
+                    console.error(error);
                     showStatus(status, '❌ Invalid JSON file', 'error');
                 }
             };
@@ -351,7 +406,7 @@
                 displayTable('spdx', spdxComparison);
                 createChart('spdx-chart', spdxComparison, 'SPDX');
             } else {
-                document.getElementById('spdx-results').style.display = 'none';
+                document.getElementById('spdx-tab').style.display = 'none';
             }
 
             if (cycloneSyftData && cycloneTrivyData) {
@@ -359,7 +414,7 @@
                 displayTable('cyclone', cycloneComparison);
                 createChart('cyclone-chart', cycloneComparison, 'CycloneDX');
             } else {
-                document.getElementById('cyclone-results').style.display = 'none';
+                document.getElementById('cyclone-tab').style.display = 'none';
             }
 
             // Scroll to results
@@ -374,22 +429,22 @@
                 const syftVer = syftData[pkg] || "Not Found";
                 const trivyVer = trivyData[pkg] || "Not Found";
                 
-                let status, color;
+                let status, colorClass;
                 if (syftVer === trivyVer && syftVer !== "Not Found") {
                     status = "✅ Match";
-                    color = "#d4edda";
+                    colorClass = "status-match";
                 } else if (trivyVer === "Not Found") {
                     status = "⚠️ Missing in Trivy";
-                    color = "#fff3cd";
+                    colorClass = "status-missing";
                 } else if (syftVer === "Not Found") {
                     status = "⚠️ Missing in Syft";
-                    color = "#fff3cd";
+                    colorClass = "status-missing";
                 } else {
                     status = "❌ Version Mismatch";
-                    color = "#f8d7da";
+                    colorClass = "status-mismatch";
                 }
                 
-                results.push({ pkg, syftVer, trivyVer, status, color });
+                results.push({ pkg, syftVer, trivyVer, status, colorClass });
             }
             
             return results;
@@ -401,7 +456,7 @@
             
             comparison.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.style.backgroundColor = row.color;
+                tr.className = row.colorClass;
                 tr.innerHTML = `
                     <td class="border border-gray-300 px-4 py-2 font-medium">${row.pkg}</td>
                     <td class="border border-gray-300 px-4 py-2">${row.syftVer}</td>
