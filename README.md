@@ -1,12 +1,6 @@
 # SBOM Automation Using Syft & Vulnerability Analysis using Grype 
-Here's a detailed and professional `README.md` for your **SBOM Generation and Vulnerability Analysis for Existing Enterprise Software** GitHub repository:
 
----
-
-```markdown
-# SBOM Generation and Vulnerability Analysis
-
-This project provides a comprehensive workflow for generating Software Bill of Materials (SBOMs) and performing automated vulnerability analysis on existing enterprise software — including binaries, source folders, Docker images, and live systems. It supports multiple SBOM formats, integrates with leading vulnerability databases (NVD, Vulners), and produces detailed human-readable reports.
+This project offers an end-to-end workflow for creating Software Bill of Materials (SBOMs) and running automated vulnerability scans on installed enterprise software — binaries, source directories, Docker containers, and live systems. It accommodates various SBOM formats, integrates with major vulnerability databases (NVD, Vulners), and outputs in-depth human-readable reports.
 
 ## 🚀 Project Overview
 
@@ -16,7 +10,7 @@ The growing complexity of enterprise software demands a systematic way to unders
 - Automatically identify dependencies and components in source code or binaries
 - Scan for known vulnerabilities (CVEs) using trusted databases
 - Support bulk and individual software scans (applications, Docker images, etc.)
-- Create HTML and JSON reports for visibility and auditing
+- Create HTML and JSON reports for visualizing and auditing
 
 ## 📦 Features
 
@@ -29,13 +23,10 @@ The growing complexity of enterprise software demands a systematic way to unders
 
 ## 🧰 Tech Stack
 
-- **Languages**: Python, Bash
+- **Languages**: Python, Bash, HTML, CSS, JS 
 - **Tools**: 
   - [Syft](https://github.com/anchore/syft) – for SBOM generation
   - [Grype](https://github.com/anchore/grype) – for vulnerability scanning
-  - [CycloneDX CLI](https://github.com/CycloneDX/cyclonedx-cli) – for SBOM validation
-- **APIs**: NVD, Vulners
-- **Platforms**: Linux (Ubuntu/Kali), Windows (via WSL), Docker
 
 ## 📁 Folder Structure
 
@@ -58,13 +49,7 @@ SBOM-Vulnerability-Analysis/
 
 ## 📌 Prerequisites
 
-Install required tools:
-```bash
-sudo apt install jq curl docker.io -y
-pip install -r requirements.txt
-````
-
-Install Syft and Grype:
+Install the required tools - Syft and Grype:
 
 ```bash
 curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
@@ -133,7 +118,7 @@ Includes:
 
 ## 🧑‍💻 Authors
 
-* \[Your Name] – SBOM Automation & Vulnerability Analysis
+* \Naveen Sekhar – SBOM Automation & Vulnerability Analysis
 * \[Other Contributors, if any]
 
 ## 📄 License
@@ -142,7 +127,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## 📬 Contact
 
-For questions, feel free to raise an issue or email at: `your.email@example.com`
+For questions, feel free to raise an issue or email at: `e0223006@sriher.edu.in`
 
 ---
 
@@ -151,6 +136,4 @@ For questions, feel free to raise an issue or email at: `your.email@example.com`
 ```
 
 ---
-
-Let me know if you'd like this tailored for a private repo, include contribution guidelines, or need the matching `requirements.txt`.
 ```
