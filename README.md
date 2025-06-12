@@ -100,7 +100,7 @@ streamlit run scripts/bulk_cve_lookup.py
 
 ## 📊 Sample Report
 
-> Available in `reports/final_report.html`
+> Available in ['deploy' 'branch under Testesd Comparison_Files'](https://github.com/naveen-sekhar/SBOM-Hosting/tree/deploy/Tested_Comparison_Files) inside the 'Tested_Comparison_Files' Folder
 
 Includes:
 
@@ -119,7 +119,7 @@ Includes:
 ## 🧑‍💻 Authors
 
 * \[Naveen Sekhar] – SBOM Automation & Vulnerability Analysis
-* 
+
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
