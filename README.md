@@ -33,17 +33,11 @@ The growing complexity of enterprise software demands a systematic way to unders
 ```
 
 SBOM-Vulnerability-Analysis/
-├── applications/              # Target software directories or binaries
-├── docker\_images/             # Scripts and tools for Docker image analysis
-├── reports/                   # HTML and JSON reports generated
-├── scripts/                   # Core automation scripts
-│   ├── generate\_sbom.py
-│   ├── validate\_sbom.py
-│   ├── scan\_with\_grype.py
-│   ├── generate\_report.py
-│   └── bulk\_cve\_lookup.py
-├── README.md
-└── requirements.txt
+├── html.tmpl            # Contains the template for the report.html page
+├── report.html          # Visual representation of the vulnerability analysis in a html page(Generated using grype)
+├── report.txt           # Contains the CVE ids and their details in the text document
+├── sbom_cyclonedx.json  # CycloneDX Format 
+└── sbom_spdx.json       # SPDX Format
 
 ````
 
@@ -98,7 +92,7 @@ streamlit run scripts/bulk_cve_lookup.py
 * Python Flask Application
 * DVWA Vulnerable App (Docker)
 
-## 📊 Sample Report
+### 📊 Sample Report
 
 > Available in deploy branch inside the ['Tested_Comparison_Files'](https://github.com/naveen-sekhar/SBOM-Hosting/tree/deploy/Tested_Comparison_Files) Folder
 
