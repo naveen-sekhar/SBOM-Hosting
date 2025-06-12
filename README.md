@@ -52,34 +52,32 @@ curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sud
 
 ## ⚙️ How to Use
 
-### 1. Generate SBOM
+### 1. Clone into you local system
 
 ```bash
-python scripts/generate_sbom.py /path/to/software
+git clone https://github.com/naveen-sekhar/SBOM-Hosting.git
 ```
 
-### 2. Validate SBOM
+### 2. Change the directory
 
 ```bash
-python scripts/validate_sbom.py /path/to/sbom.spdx.json
+cd SBOM-HOSTING/Automation
 ```
 
-### 3. Perform Vulnerability Scan
+### 3. Give file executable permissions
 
 ```bash
-python scripts/scan_with_grype.py /path/to/sbom.spdx.json
+chmod +x SBOM_Automation.sh
 ```
+* If you need comparison for trivy
+```bash
+chmod +x SBOM_syft_trivy_Automation.sh
+``` 
 
-### 4. Generate HTML Report
+### 4. Run the File 
 
 ```bash
-python scripts/generate_report.py --input reports/vulnerabilities.json --output reports/final_report.html
-```
-
-### 5. Bulk CVE Lookup (NVD & Vulners)
-
-```bash
-streamlit run scripts/bulk_cve_lookup.py
+./SBOM_Automation
 ```
 
 ## 🧪 Sample Targets Analyzed
