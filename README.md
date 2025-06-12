@@ -28,7 +28,7 @@ The growing complexity of enterprise software demands a systematic way to unders
   - [Syft](https://github.com/anchore/syft) – for SBOM generation
   - [Grype](https://github.com/anchore/grype) – for vulnerability scanning
 
-## 📁 Folder Structure
+## 📁 Output Folder Structure
 
 ```
 
@@ -52,8 +52,8 @@ SBOM-Vulnerability-Analysis/
 Install the required tools - Syft and Grype:
 
 ```bash
-curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
+curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
 ```
 
 ## ⚙️ How to Use
@@ -118,9 +118,8 @@ Includes:
 
 ## 🧑‍💻 Authors
 
-* \Naveen Sekhar – SBOM Automation & Vulnerability Analysis
-* \[Other Contributors, if any]
-
+* \[Naveen Sekhar] – SBOM Automation & Vulnerability Analysis
+* 
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
@@ -132,8 +131,3 @@ For questions, feel free to raise an issue or email at: `e0223006@sriher.edu.in`
 ---
 
 > *Secure your software, one component at a time.*
-
-```
-
----
-```
