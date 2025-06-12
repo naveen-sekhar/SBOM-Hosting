@@ -100,7 +100,7 @@ streamlit run scripts/bulk_cve_lookup.py
 
 ## 📊 Sample Report
 
-> Available in ['deploy' 'branch under Testesd Comparison_Files'](https://github.com/naveen-sekhar/SBOM-Hosting/tree/deploy/Tested_Comparison_Files) inside the 'Tested_Comparison_Files' Folder
+> Available in deploy branch inside the ['Tested_Comparison_Files'](https://github.com/naveen-sekhar/SBOM-Hosting/tree/deploy/Tested_Comparison_Files) Folder
 
 Includes:
 
