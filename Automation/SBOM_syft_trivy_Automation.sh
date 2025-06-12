@@ -1730,7 +1730,7 @@ compare_reports() {
   echo "🔍 This feature will help you compare Trivy and Syft vulnerability reports."
   echo "📊 Opening comparison guide..."
   
-  COMPARISON_URL="https://naveen-sekhar.github.io/SBOM-Hosting/dashboard.html"
+  COMPARISON_URL="https://naveen-sekhar.github.io/SBOM-Hosting/comparison.html"
   
   if command -v xdg-open >/dev/null; then
     xdg-open "$COMPARISON_URL"
